@@ -1,31 +1,14 @@
 package com.example.amyas.gsontest;
 
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.os.Looper;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonDeserializationContext;
-import com.google.gson.JsonDeserializer;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonParseException;
-import com.google.gson.reflect.TypeToken;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.IOException;
-import java.lang.reflect.Type;
-import java.util.Date;
-import java.util.List;
-
-import okhttp3.ResponseBody;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
+import io.reactivex.Observer;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
 
 public class MainActivity extends AppCompatActivity {
     public static final String TAG = "MainActivity";
@@ -34,36 +17,46 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        getConnected();
+        getConnected(getObserver());
     }
 
-    private void getConnected(){
-        Log.e(TAG, "getConnected: connecting");
-//        GsonBuilder builder = new GsonBuilder();
-//        builder.registerTypeAdapter(Date.class, new GsonDeserializers.DateDeserializer());
-//        Gson gson = builder.create();
-        Gson gson = new GsonBuilder().setDateFormat("yyyy-MM-dd HH:mm:ss").create();
+    //直接获取数据
+    private void getConnected() {
+        RetrofitService.getInstance().getCollections(1, 10, getObserver());
+    }
 
-        Api retrofit = new Retrofit.Builder()
-                .baseUrl(BasicMessage.BASE_URL)
-                .addConverterFactory(GsonConverterFactory.create(gson))
-                .build()
-                .create(Api.class);
-        Call<NewsBean> call = retrofit.news(BasicMessage.TOKEN, 1, 10);
-        call.enqueue(new Callback<NewsBean>() {
+    //自定义 retrofit操作流 获取数据
+    private void getConnected(Observer<NewsBean> observer) {
+        RetrofitService.getInstance().getCollectionsObservable(1, 10)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(observer);
+    }
+
+    private Observer<NewsBean> getObserver() {
+        return new Observer<NewsBean>() {
             @Override
-            public void onResponse(Call<NewsBean> call, Response<NewsBean> response) {
-                Log.e(TAG, "onResponse: "+ response.body());
-                List<CollectionBean> list = response.body().getData();
-                for (CollectionBean collectionBean : list) {
-                    Log.e(TAG, "onResponse: "+collectionBean);
+            public void onSubscribe(Disposable d) {
+                Log.e(TAG, "onSubscribe: just subscribed");
+            }
+
+            @Override
+            public void onNext(NewsBean newsBean) {
+                Log.e(TAG, "accept: looper is " + Looper.myLooper());
+                for (CollectionBean bean : newsBean.getData()) {
+                    Log.e(TAG, "accept: bean " + bean);
                 }
             }
 
             @Override
-            public void onFailure(Call<NewsBean> call, Throwable t) {
-                Log.e(TAG, "onFailure: "+ t );
+            public void onError(Throwable e) {
+
             }
-        });
+
+            @Override
+            public void onComplete() {
+                Log.e(TAG, "onComplete: ");
+            }
+        };
     }
 }
