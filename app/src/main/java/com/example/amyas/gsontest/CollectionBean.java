@@ -1,18 +1,7 @@
 package com.example.amyas.gsontest;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonDeserializationContext;
-import com.google.gson.JsonDeserializer;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonParseException;
 import com.google.gson.annotations.SerializedName;
 
-import java.lang.reflect.Type;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.Date;
 
 /**
@@ -35,6 +24,7 @@ public class CollectionBean {
     private Date create_time;
     private String type;
     private int id;
+    private int type_id;
 
     public String getTitle() {
         return title;
@@ -104,6 +94,4 @@ public class CollectionBean {
     public void setType_id(int type_id) {
         this.type_id = type_id;
     }
-
-    private int type_id;
 }

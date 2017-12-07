@@ -5,19 +5,54 @@ import android.os.Looper;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 
+import java.util.concurrent.TimeUnit;
+
+import io.reactivex.Observable;
 import io.reactivex.Observer;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
+import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
 
 public class MainActivity extends AppCompatActivity {
     public static final String TAG = "MainActivity";
+    private CompositeDisposable mCompositeDisposable;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        getConnected(getObserver());
+        mCompositeDisposable = new CompositeDisposable();
+//        getConnected(getObserver());
+//         Observable.interval(2,2, TimeUnit.SECONDS)
+//                .subscribeOn(Schedulers.io())
+//                .observeOn(AndroidSchedulers.mainThread())
+//                .subscribe(new Observer<Long>() {
+//                    private Disposable mDisposable;
+//                    @Override
+//                    public void onSubscribe(Disposable d) {
+//                        mDisposable = d;
+//                        mCompositeDisposable.add(d);
+//                    }
+//
+//                    @Override
+//                    public void onNext(Long aLong) {
+//                        Log.e(TAG, "onNext: get time "+ aLong);
+//                        mCompositeDisposable.dispose();
+//                    }
+//
+//                    @Override
+//                    public void onError(Throwable e) {
+//
+//                    }
+//
+//                    @Override
+//                    public void onComplete() {
+//
+//                    }
+//                });
+
     }
 
     //直接获取数据
